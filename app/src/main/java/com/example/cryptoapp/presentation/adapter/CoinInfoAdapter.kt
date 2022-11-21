@@ -1,22 +1,19 @@
-package com.example.cryptoapp.adapter
+package com.example.cryptoapp.presentation.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.cryptoapp.R
-import com.example.cryptoapp.pojo.CoinInfo
-import com.example.cryptoapp.pojo.CoinPriceInfo
+import com.example.cryptoapp.data.network.model.CoinInfoDto
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.item_coin_info.view.*
 
 //пробросили private val context: Context, в качестве параметра конструктора
 class CoinInfoAdapter(private val context: Context):RecyclerView.Adapter<CoinInfoAdapter.CoinInfoViewHolder>() {
 
-    var coinInfoList:List<CoinPriceInfo> = listOf()
+    var coinInfoList:List<CoinInfoDto> = listOf()
     set(value) {
         field = value
         notifyDataSetChanged()
@@ -58,7 +55,7 @@ class CoinInfoAdapter(private val context: Context):RecyclerView.Adapter<CoinInf
     }
     //создаем интерфейс для слушателя клика
     interface OnCoinClickListener {
-        fun onCoinClick(coinPriceInfo: CoinPriceInfo)
+        fun onCoinClick(coinPriceInfo: CoinInfoDto)
     }
 
 }

@@ -1,14 +1,13 @@
-package com.example.cryptoapp
+package com.example.cryptoapp.presentation
 
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.cryptoapp.adapter.CoinInfoAdapter
-import com.example.cryptoapp.api.ApiFactory
-import com.example.cryptoapp.pojo.CoinPriceInfo
+import com.example.cryptoapp.R
+import com.example.cryptoapp.presentation.adapter.CoinInfoAdapter
+import com.example.cryptoapp.data.network.ApiFactory
+import com.example.cryptoapp.data.network.model.CoinInfoDto
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -26,10 +25,13 @@ class CoinPriceListActivity : AppCompatActivity() {
         val adapter = CoinInfoAdapter(this)
         //установим слушатель клика
         adapter.onCoinClickListener = object: CoinInfoAdapter.OnCoinClickListener {
-            override fun onCoinClick(coinPriceInfo: CoinPriceInfo) {
+            override fun onCoinClick(coinPriceInfo: CoinInfoDto) {
               //  val intent = Intent(this@CoinPriceListActivity,CoinDetailActivity::class.java)
                // intent.putExtra(CoinDetailActivity.EXTRA_FROM_SYMBOL,coinPriceInfo.fromSymbol)
-                val intent = CoinDetailActivity.newInstance(this@CoinPriceListActivity, coinPriceInfo.fromSymbol)
+                val intent = CoinDetailActivity.newInstance(
+                    this@CoinPriceListActivity,
+                    coinPriceInfo.fromSymbol
+                )
                 startActivity(intent)
 
                 //Log.d("MyLog", "Valuta: ${coinPriceInfo.fromSymbol}")
