@@ -7,17 +7,18 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.cryptoapp.R
-import com.example.cryptoapp.data.network.ApiFactory
-import com.example.cryptoapp.utils.convertTimestampToTime
+import com.example.cryptoapp.databinding.ActivityCoinDetailBinding
 import com.squareup.picasso.Picasso
-import kotlinx.android.synthetic.main.activity_coin_detail.*
 
 class CoinDetailActivity : AppCompatActivity() {
-    private lateinit var viewModel: CoinViewModel
+
+    private val binding by lazy {
+        ActivityCoinDetailBinding.inflate(layoutInflater)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_coin_detail)
+        setContentView(binding.root)
         //если не EXTRA_FROM_SYMBOL, то выходим их активити
         if (!intent.hasExtra(EXTRA_FROM_SYMBOL)) {
             finish()
@@ -26,21 +27,13 @@ class CoinDetailActivity : AppCompatActivity() {
         //получаем переменную из адаптера
         val fromSymbol = intent.getStringExtra(EXTRA_FROM_SYMBOL) ?: EMPTY_SYMBOL
 
-        //настроим вьюмодель
-        viewModel = ViewModelProvider(this).get(CoinViewModel::class.java)
-        //получаем детальную информацию
-        viewModel.getDetailInfo(fromSymbol).observe(this) {
-            Log.d("MyLog", " it.tostring() $it")
-            tvS.text = it.fromSymbol
-            tvU.text = it.toSymbol
-            tvPriceVolume.text = it.price
-            tvMinV.text = it.lowDay
-            tvMaxV.text = it.highDay
-            tvLastSdelkaV.text = it.lastMarket
-            tvUpdateV.text = convertTimestampToTime(it.lastUpdate)
-            Picasso.get().load(ApiFactory.BASE_IMAGE_URL + it.imageUrl).into(ivLogo)
-        }
+        if (savedInstanceState == null){
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.fragment_container, CoinDetailFragment.newInstance(fromSymbol))
+                .commit()
 
+        }
     }
 
     companion object {

@@ -4,63 +4,67 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.example.cryptoapp.R
+import com.example.cryptoapp.databinding.ActivityCoinPriceListBinding
 import com.example.cryptoapp.domain.CoinInfoEntity
 import com.example.cryptoapp.presentation.adapter.CoinInfoAdapter
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.android.synthetic.main.activity_coin_price_list.*
 
 
 class CoinPriceListActivity : AppCompatActivity() {
     private val compositeDisposable = CompositeDisposable()
     private lateinit var viewModel: CoinViewModel
+    private val binding by lazy {
+        ActivityCoinPriceListBinding.inflate(layoutInflater)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_coin_price_list)
+        setContentView(binding.root)
         //создадим адаптер
         val adapter = CoinInfoAdapter(this)
         //установим слушатель клика
         adapter.onCoinClickListener = object : CoinInfoAdapter.OnCoinClickListener {
             override fun onCoinClick(coinPriceInfo: CoinInfoEntity) {
-                //  val intent = Intent(this@CoinPriceListActivity,CoinDetailActivity::class.java)
-                // intent.putExtra(CoinDetailActivity.EXTRA_FROM_SYMBOL,coinPriceInfo.fromSymbol)
-                val intent = CoinDetailActivity.newInstance(
-                    this@CoinPriceListActivity,
-                    coinPriceInfo.fromSymbol
-                )
-                startActivity(intent)
-                //Log.d("MyLog", "Valuta: ${coinPriceInfo.fromSymbol}")
+             if (isOnePaneMode()){
+                 launchDetailActivity(coinPriceInfo.fromSymbol)
+             }else{
+                 launchDetailFragment(coinPriceInfo.fromSymbol)
+             }
+//                val intent = CoinDetailActivity.newInstance(
+//                    this@CoinPriceListActivity,
+//                    coinPriceInfo.fromSymbol
+//                )
+//                startActivity(intent)
             }
         }
         //установим адаптер у рецайклервью
-        rvCoinPriceList.adapter = adapter
+        binding.rvCoinPriceList.adapter = adapter
+//отключаем анимацию
+        binding.rvCoinPriceList.itemAnimator = null
 //создали вью модель
         viewModel = ViewModelProvider(this).get(CoinViewModel::class.java)
 
         viewModel.coinInfoList.observe(this) {
-            adapter.coinInfoList = it
-
-//            Log.d("MyLog", "Success in Activity: $it")
+//            adapter.coinInfoList = it
+            adapter.submitList(it)
         }
-
-        //подписались на детальную информацию о биткоине
-//        viewModel.getDetailInfo("BTC").observe(this, Observer {
-//            Log.d("MyLog", "Success in Activity btc:  $it")
-//        })
-
-//        val disposable = ApiFactory.apiService.getFullPriceList(fSyms = "BTC,ETH,EOS")
-//            .subscribeOn(Schedulers.io())
-//            .observeOn(AndroidSchedulers.mainThread())
-//            .subscribe({
-//                //    Log.d("MyLog", it.toString())
-//            }, {
-//                //  Log.d("MyLog", "it.message")
-//            }
-//            )
-//        compositeDisposable.add(disposable)
-
     }
+    private fun isOnePaneMode() = binding.fragmentContainer == null
 
+    private fun launchDetailActivity(fromSymbol: String){
+        val intent = CoinDetailActivity.newInstance(
+            this@CoinPriceListActivity,
+            fromSymbol
+        )
+        startActivity(intent)
+    }
+    private fun launchDetailFragment(fromSymbol:String){
+        supportFragmentManager.popBackStack()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container, CoinDetailFragment.newInstance(fromSymbol))
+            .addToBackStack(null)
+            .commit()
+    }
     override fun onDestroy() {
         super.onDestroy()
         compositeDisposable.dispose()
